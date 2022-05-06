@@ -1,3 +1,4 @@
+import 'package:exploden_kittens/animation.dart';
 import 'package:exploden_kittens/router/routes.dart';
 import 'package:flutter/material.dart';
 
@@ -12,48 +13,51 @@ class MainMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("<userame>".toUpperCase()), actions: [
-        TextButton(onPressed: () {}, child: const Text("Создать акк")),
-        TextButton(onPressed: () {}, child: const Text("Выйти")),
-      ]),
-      body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: OutlinedButton(
-              onPressed: _newSession,
-              child: const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Text("Присоединиться"),
+    return Stack(children: <Widget>[
+      Scaffold(
+        appBar: AppBar(title: Text("<userame>".toUpperCase()), actions: [
+          TextButton(onPressed: () {}, child: const Text("Создать акк")),
+          TextButton(onPressed: () {}, child: const Text("Выйти")),
+        ]),
+        body: Center(
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: OutlinedButton(
+                onPressed: _newSession,
+                child: const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text("Присоединиться"),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: OutlinedButton(
-              onPressed: _newSession,
-              child: const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Text("Создать игру"),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: OutlinedButton(
+                onPressed: _newSession,
+                child: const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text("Создать игру"),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: OutlinedButton(
-              onPressed: _newSession,
-              child: const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Text("Все игры"),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: OutlinedButton(
+                onPressed: _newSession,
+                child: const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text("Все игры"),
+                ),
               ),
-            ),
-          )
-        ],
-      )),
-    );
+            )
+          ],
+        )),
+      ),
+      const MyAnimatedWidget()
+    ]);
   }
 }

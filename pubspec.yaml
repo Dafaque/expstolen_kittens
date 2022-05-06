@@ -17,6 +17,9 @@ flutter:
   assets:
     - assets/loaders/
     - assets/cards/
+    - assets/cards/bad/
+    - assets/cards/shameless/
+    - assets/cards/singular/
   fonts:
     - family: BebasNeue-Cyrillic
       fonts:
