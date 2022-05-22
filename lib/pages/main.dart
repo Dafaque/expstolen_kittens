@@ -57,7 +57,7 @@ class MainMenu extends StatelessWidget {
           ],
         )),
       ),
-      const MyAnimatedWidget()
+      MatrixEffect()
     ]);
   }
 }

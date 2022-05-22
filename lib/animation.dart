@@ -1,72 +1,156 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'dart:ui';
+import 'dart:math';
 
-class MyAnimatedWidget extends StatefulWidget {
-  const MyAnimatedWidget({Key? key}) : super(key: key);
+class VerticalTextLine extends StatefulWidget {
+  VerticalTextLine(
+      {required this.onFinished,
+      this.speed = 12.0,
+      this.maxLength = 10,
+      Key? key})
+      : super(key: key);
 
-  static const String routeName = '/weather';
+  final double speed;
+  final int maxLength;
+  final VoidCallback onFinished;
 
   @override
-  _MyAnimatedWidgetState createState() => _MyAnimatedWidgetState();
+  _VerticalTextLineState createState() => _VerticalTextLineState();
 }
 
-class _MyAnimatedWidgetState extends State<MyAnimatedWidget>
-    with TickerProviderStateMixin {
-  late Animation<double> animation;
-  late AnimationController animationController;
+class _VerticalTextLineState extends State<VerticalTextLine> {
+  late int _maxLength;
+  late Duration _stepInterval;
+  List<String> _characters = [];
+  late Timer timer;
 
   @override
   void initState() {
+    _maxLength = widget.maxLength;
+    _stepInterval = Duration(milliseconds: (1000 ~/ widget.speed));
+    _startTimer();
     super.initState();
-
-    animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 3));
-    animation = Tween<double>(begin: 0, end: -9999).animate(animationController)
-      ..addListener(() {
-        setState(() {});
-      });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  void _startTimer() {
+    timer = Timer.periodic(_stepInterval, (timer) {
+      final _random = new Random();
+      String element = String.fromCharCode(_random.nextInt(512));
+
+      final box = context.findRenderObject() as RenderBox;
+
+      if (box.size.height > MediaQuery.of(context).size.height * 2) {
+        widget.onFinished();
+        return;
+      }
+
+      setState(() {
+        _characters.add(element);
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Container(
-          height: 500,
-          width: 500,
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/cards/bad/attack_1.png'),
-                  fit: BoxFit.cover)),
-        ),
-        Align(
-          alignment: const AlignmentDirectional(0, 0.7),
-          child: Transform.translate(
-            offset: Offset(0, animation.value),
-            child: Container(
-              height: 250,
-              width: 170,
-              decoration: const BoxDecoration(
-                  image: DecorationImage(
-                image: AssetImage('assets/cards/cover.png'),
-              )),
-            ),
-          ),
-        ),
-        Align(
-          alignment: AlignmentDirectional.bottomCenter,
-          child: ElevatedButton(
-              onPressed: () {
-                animationController.forward();
-              },
-              child: const Text('Go')),
-        )
-      ],
+    List<double> stops = [];
+    List<Color> colors = [];
+
+    double greenStart = 0.3;
+    double whiteStart = (_characters.length - 1) / (_characters.length);
+
+    colors = [Colors.transparent, Colors.green, Colors.green, Colors.white];
+
+    greenStart = (_characters.length - _maxLength) / _characters.length;
+
+    stops = [0, greenStart, whiteStart, whiteStart];
+
+    return ShaderMask(
+        shaderCallback: (Rect bounds) {
+          return LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: stops,
+            colors: colors,
+          ).createShader(bounds);
+        },
+        blendMode: BlendMode.srcIn,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: _getCharacters(),
+        ));
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  List<Widget> _getCharacters() {
+    List<Widget> textWidgets = [];
+
+    for (var character in _characters) {
+      textWidgets.add(Text(character,
+          style: TextStyle(fontFamily: "Monospace", fontSize: 14)));
+    }
+
+    return textWidgets;
+  }
+}
+
+class MatrixEffect extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _MatrixEffectState();
+  }
+}
+
+class _MatrixEffectState extends State<MatrixEffect> {
+  List<Widget> _verticalLines = [];
+  late Timer timer;
+
+  @override
+  void initState() {
+    _startTimer();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: _verticalLines);
+  }
+
+  void _startTimer() {
+    timer = Timer.periodic(Duration(milliseconds: 300), (timer) {
+      setState(() {
+        _verticalLines.add(_getVerticalTextLine(context));
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  Widget _getVerticalTextLine(BuildContext context) {
+    Key key = GlobalKey();
+    return Positioned(
+      key: key,
+      left: Random().nextDouble() * MediaQuery.of(context).size.width,
+      child: VerticalTextLine(
+          onFinished: () {
+            setState(() {
+              _verticalLines.removeWhere((element) {
+                return element.key == key;
+              });
+            });
+          },
+          speed: 1 + Random().nextDouble() * 9,
+          maxLength: Random().nextInt(10) + 5),
     );
   }
 }
